@@ -19,9 +19,9 @@
 3) write semantic text content
 ```latex
 \bookmark[
- \label example 
- \url   "http://www.example.com"
- \tag   example, readme, ReTex
+ \label ReTex Home 
+ \url   "https://github.com/jbee/ReTex"
+ \tag   example, readme, ReTex, home
 ]
 ```
 
