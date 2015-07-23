@@ -8,7 +8,7 @@
 
 1) derive types of text,
 ```latex
-\text[bookmark \has label \has url \has tag]
+\text[bookmark \expect label \expect url \expect tag]
 ```
 2) derive types of meta attributes,
 ```latex
