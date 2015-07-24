@@ -1,0 +1,15 @@
+\unit[paper]
+\unit[digital]
+
+\paper[book]
+\paper[report]
+\paper[article]
+
+\block[part]
+\block[chapter]
+\block[section]
+\block[subsection]
+\block[subsubsection]
+
+\lines[heading]
+\lines[paragraph \abbr par]
