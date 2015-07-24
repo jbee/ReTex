@@ -5,10 +5,10 @@
 \paper[report]
 \paper[article]
 
-\block[part]
-\block[chapter]
-\block[section]
-\block[subsection]
+\block[part        \above chapter]
+\block[chapter     \above section]
+\block[section     \above subsection]
+\block[subsection  \above subsubsection]
 \block[subsubsection]
 
 \lines[heading]
