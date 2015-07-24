@@ -9,7 +9,7 @@
 \meta[default \kind default]
 \meta[inline  \kind inline]
 
-\text[unit]
-\text[block]
-\text[lines]
-\text[inline]
+\text[unit   \above block]
+\text[block  \above lines  \below unit]
+\text[lines  \above inline \below block]
+\text[inline               \below lines]
