@@ -7,7 +7,7 @@
 \pages[\type subsubsection]
 
 \\ in order of usual occurrence
-\part[\type leave \man blank pages at the start or end of a book]
+\part[\type leave \isa blank pages at the start or end of a book]
 \part[\type titlepage]
 \part[\type dedicationpage]
 \part[\type acknowledgements]
