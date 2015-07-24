@@ -1,0 +1,5 @@
+\unit[print   \bare heading]
+
+\print[\type book]
+\print[\type report]
+\print[\type article]
