@@ -1,0 +1,7 @@
+\block[table   \above header, row]
+\block[header  \above row \below table]
+\block[row                \below table, header]
+\block[column  \abbr col]
+
+\lines[caption \abbr legend]
+\lines[line]
