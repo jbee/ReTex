@@ -1,10 +1,4 @@
-\unit[print   \bare heading]
-\unit[digital \bare heading]
 \block[pages  \bare heading]
-
-\print[\type book]
-\print[\type report]
-\print[\type article]
 
 \pages[\type part        \above chapter]
 \pages[\type chapter     \above section]
