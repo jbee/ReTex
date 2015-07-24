@@ -9,7 +9,7 @@
 \meta[default \kind default]
 \meta[inline  \kind inline]
 
-\meta[man]
+\meta[isa \isa meta element to document the meaning of elements for humans to read]
 
 \text[unit   \above block]
 \text[block  \above lines  \below unit]
