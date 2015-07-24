@@ -1,0 +1,15 @@
+\meta[class   \kind class]
+\meta[abbr    \kind abbr]
+
+\meta[below   \kind below]
+\meta[above   \kind above]
+\meta[expect  \kind expect]
+
+\meta[bare    \kind bare]
+\meta[default \kind default]
+\meta[inline  \kind inline]
+
+\text[unit]
+\text[block]
+\text[lines]
+\text[inline]
