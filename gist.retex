@@ -9,9 +9,9 @@
 \meta[default \kind default]
 \meta[inline  \kind inline]
 
-\meta[isa \isa meta element to document the meaning of elements for humans to read]
+\meta[nb \nb = nota bene; meta element to document the meaning of elements for humans to read]
 
-\text[unit   \above block]
-\text[block  \above lines  \below unit]
-\text[lines  \above inline \below block]
-\text[inline               \below lines]
+\text[doc      \above division]
+\text[division \above lines  \below doc]
+\text[lines    \above inline \below division]
+\text[inline                 \below lines]
