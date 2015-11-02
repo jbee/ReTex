@@ -1,4 +1,4 @@
-\block[pages  \bare heading]
+\division[pages  \bare heading]
 
 \pages[\type part        \above chapter]
 \pages[\type chapter     \above section]
