@@ -1,17 +1,45 @@
+\\ think of the given 2 basic element as:
+\\ element[\type text \bare type \kind text]
+\\ element[\type meta \bare type \kind meta]
+
+\\ bootstrapping common meta properties
 \meta[class   \kind class]
+\meta[rel     \kind rel]
+\meta[ref     \kind ref]
+\meta[guid    \kind guid]
 \meta[abbr    \kind abbr]
-
-\meta[below   \kind below]
 \meta[above   \kind above]
-\meta[expect  \kind expect]
+\meta[below   \kind below]
+\meta[with    \kind with]
+\meta[bare    \kind bare]     \\ default meta type
+\meta[default \kind default]  \\ default text type
+\meta[unnamed \kind unnamed]  \\ default inline type
+\meta[nb      \kind info]     \\ nb = nota bene; documentation for humans to read
 
-\meta[bare    \kind bare]
-\meta[default \kind default]
-\meta[inline  \kind inline]
-
-\meta[nb \nb = nota bene; meta element to document the meaning of elements for humans to read]
-
-\text[doc      \above division]
+\text[doc      \above division \bare title \with class]
 \text[division \above lines  \below doc]
 \text[lines    \above inline \below division]
 \text[inline                 \below lines]
+
+\division[block   \bare heading \default paragraph]
+\block[\type part        \above chapter]
+\block[\type chapter     \above section]
+\block[\type section     \above subsection]
+\block[\type subsection  ]
+
+\division[figure]
+\division[item]
+\division[group]
+
+\lines[heading    \above []]
+\lines[paragraph  \abbr par]
+\heading[title]
+
+\inline[bold      \abbr b]
+\inline[italic    \abbr i]
+\inline[underline \abbr u]
+
+\\ inserts and deletes can contain most units of text; divisions, lines or in-line
+\division[mark]
+\mark[inserted  \abbr ins]
+\mark[deleted   \abbr del]

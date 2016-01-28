@@ -8,22 +8,20 @@
 
 1) derive types of text,
 ```latex
-\text[bookmark \expect label \expect url \expect tag]
+\text[bookmark \default label \with url \with tag]
+\text[label]
 ```
-2) derive types of meta attributes,
+2) derive types of meta properties,
 ```latex
-\meta[label]
-\meta[url]
-\meta[tag]
+\meta[url   \kind rel]
+\meta[tag   \kind info]
 ```
-3) write semantic text content
+3) write semantic content
 ```latex
-\bookmark[
- \label ReTex Home 
+\bookmark[ 
  \url   "https://github.com/jbee/ReTex"
  \tag   example, readme, ReTex, home
-]
+]{ReTex Home}
 ```
 
-Put this in one file; or in multiple.
-Maybe refine the "model".
+Works in one file - or many.

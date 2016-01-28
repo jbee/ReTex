@@ -1,7 +1,7 @@
-\block[table   \above header, row]
-\block[header  \above row \below table]
-\block[row                \below table, header]
-\block[column  \abbr col]
+\figure[table   \above header, row]
+\group[header   \above row \below table]
+\item[row                \below table, header]
+\item[column  \abbr col]
 
 \lines[caption \abbr legend]
 \lines[line]
