@@ -1,9 +1,13 @@
-package se.jbee.doc;
+package se.jbee.doc.scan;
 
 import java.io.IOException;
 import java.util.function.IntPredicate;
 
 public interface DocumentReader {
+
+	/*
+		4 fundamental character stream operations: read, peek(1), peek(fn), throw
+	 */
 
 	/**
 	 *
@@ -18,66 +22,53 @@ public interface DocumentReader {
 	int peek() throws IOException;
 
 	/**
-	 *
-	 * @param test function that returns true if look ahead should continue or false to end the peek
+	 * @param cpTest function that returns true if look ahead should continue or false to end the peek for the given code point
 	 * @return number of characters looked ahead, return (-look-ahead - 1) in case end of input is reached
 	 * (this is the number of {@link #read()} calls it takes to read these characters.
 	 * This may differ from the actual number of characters in the source because of
 	 * different encodings of new line as 1 or 2 characters whereas new lines are
 	 * always one character for this abstraction).
 	 */
-	int peek(IntPredicate test) throws IOException;
+	int peek(IntPredicate cpTest) throws IOException;
 
-	UnexpectedCharacter newUnexpectedCharacter(int expected, int actual);
+	UnexpectedCharacter mismatch(int cpExpected, int cpActual);
 
+
+	/*
+		Utilities based on the 4 fundamental operations
+	 */
 
 	default int skipWhitespace() throws IOException {
 		return skip(Character::isWhitespace);
 	}
 
-	default void gobble(int expected) throws IOException {
+	default void gobble(int cpExpected) throws IOException {
 		int c = peek();
-		if (c != expected)
-			throw newUnexpectedCharacter(expected, c);
+		if (c != cpExpected)
+			throw mismatch(cpExpected, c);
 		read();
 	}
 
-	default int skip(IntPredicate test) throws IOException {
-		int len = peek(test);
+	default int skip(IntPredicate cpTest) throws IOException {
+		int len = peek(cpTest);
 		if (len < 0)
-			throw newUnexpectedCharacter(-2, -1);
+			throw mismatch(-2, -1);
 		for (int i = 0; i < len; i++)
 			read();
 		return len;
 	}
 
-	default CharSequence until(IntPredicate test) throws IOException {
+	default CharSequence until(IntPredicate cpTest) throws IOException {
 		StringBuilder str = new StringBuilder();
 		int cp = -1;
 		do {
 			cp = peek();
-			if (test.test(cp))
+			if (cpTest.test(cp))
 				return str;
 			read();
 			str.appendCodePoint(cp);
 		} while (cp != -1);
-		throw newUnexpectedCharacter(-2, -1);
+		throw mismatch(-2, -1);
 	}
 
-	final class Position {
-		public final int lineNr;
-		public final int lineOffset;
-		public final int filePosition;
-
-		public Position(int lineNr, int lineOffset, int filePosition) {
-			this.lineNr = lineNr;
-			this.lineOffset = lineOffset;
-			this.filePosition = filePosition;
-		}
-
-		@Override
-		public String toString() {
-			return lineNr + ":" + lineOffset + " [" + filePosition + "]";
-		}
-	}
 }

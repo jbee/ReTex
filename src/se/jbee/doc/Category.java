@@ -7,21 +7,21 @@ package se.jbee.doc;
  * 	- a exact alias: <code>alias</code>
  * 	- a is-a alias: <code>*alias</code>
  */
-public final class Pattern {
+public final class Category {
 
 	private final Nature nature;
 	private final Define element;
 	private final boolean isa;
 
-	public Pattern(Nature nature) {
+	public Category(Nature nature) {
 		this(nature, null, false);
 	}
 
-	public Pattern(Define element, boolean isa) {
+	public Category(Define element, boolean isa) {
 		this(null, element, isa);
 	}
 
-	private Pattern(Nature nature, Define element, boolean isa) {
+	private Category(Nature nature, Define element, boolean isa) {
 		this.nature = nature;
 		this.element = element;
 		this.isa = isa;

@@ -61,15 +61,15 @@ public enum Nature {
 	/**
 	 * (gives a set of elements, is a elements (`*`) or natures (`&`) that is valid as actual value for the defined *attribute*, if used with elements this restricts possible child elements or attributes depending on the natures of the items in the set)
 	 */
-	accept(Pattern.class),
+	accept(Category.class),
 	/**
 	 * (what are attributes that must be given in `[...]` to the defined element or attribute)
 	 */
-	must(Pattern.class),
+	must(Category.class),
 	/**
 	 * (what are attributes that may be given in `[...]` to the defined element or attribute)
 	 */
-	may(Pattern.class),
+	may(Category.class),
 
 	//Inference:
 	/**
@@ -106,9 +106,9 @@ public enum Nature {
 	scanner(String.class),
 
 	/**
-	 * General
+	 * Generally used to configure interpretation of other processing.
 	 */
-	code(String.class),
+	control(String.class),
 
 	// Modularisation:
 	/**

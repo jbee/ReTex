@@ -1,5 +1,7 @@
 package se.jbee.doc;
 
+import se.jbee.doc.scan.DocumentScanner;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,10 +15,10 @@ public final class Scanners {
 
 	public DocumentScanner provide(Element scanner) {
 		if (!scanner.isOf(Nature.scanner))
-			throw new IllegalArgumentException("Argument must be of nature "+Nature.scanner+" but was "+ Arrays.toString(scanner.natures()) + " for element "+ scanner);
+			throw new IllegalArgumentException("Argument must be of nature "+Nature.scanner+" but was "+ scanner.nature() + " for element "+ scanner);
 		String name = scanner.name();
 		return scanners.computeIfAbsent(name, key -> {
-			String className = scanner.get(Nature.code).values[0];
+			String className = scanner.get(Nature.control).values[0];
 			try {
 				Class<?> type = Class.forName(className);
 				if (!DocumentScanner.class.isAssignableFrom(type))

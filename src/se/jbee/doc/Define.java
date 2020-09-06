@@ -52,6 +52,19 @@ public final class Define extends Element {
 		return new Element(context, this);
 	}
 
+	private Category[] valuesAsCategories(Nature nature) {
+		return values(nature, Category.class, Category[]::new, this::newCategory);
+	}
+
+	private Category newCategory(String pattern) {
+		if (pattern.charAt(0) == '&')
+			return new Category(Nature.valueOf(pattern.substring(1)));
+		boolean isa = pattern.charAt(0) == '*';
+		if (isa)
+			pattern = pattern.substring(1);
+		return new Category(context.definitionFor(pattern), isa);
+	}
+
 	/*
 	  Attributes of a define-Elements
 	 */
@@ -84,4 +97,15 @@ public final class Define extends Element {
 		return valueAsDefine(Nature.inline);
 	}
 
+	public Category[] accept() {
+		return valuesAsCategories(Nature.accept);
+	}
+
+	public Category[] must() {
+		return valuesAsCategories(Nature.must);
+	}
+
+	public Category[] may() {
+		return valuesAsCategories(Nature.may);
+	}
 }

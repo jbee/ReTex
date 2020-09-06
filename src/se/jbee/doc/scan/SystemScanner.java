@@ -3,7 +3,6 @@ package se.jbee.doc.scan;
 import se.jbee.doc.*;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +27,7 @@ public final class SystemScanner implements DocumentScanner {
 	}
 
 	private static void scanPastElement(DocumentReader in, DocumentBuilder builder) throws IOException {
-		in.skip(Character::isWhitespace);
+		in.skipWhitespace();
 		int c = in.peek();
 		if (c == '#') {
 			in.skip(SystemScanner::isNotNewLine);
@@ -90,60 +89,61 @@ public final class SystemScanner implements DocumentScanner {
 			c = in.peek();
 			if (c != -1 && c != ']') {
 				if (c == '\\') {
-					Define key = builder.meta().getDefinition(readArg(in).toString().substring(1));
-					in.skip(Character::isWhitespace);
-					String[] value = readValue(in);
+					in.gobble('\\');
+					Define key = builder.meta().getDefinition(scanValue(in));
+					in.skipWhitespace();
+					String[] value = scanValues(in);
 					e.add(key, value);
 				} else {
 					if (implicitIndex >= implicit.length)
-						throw in.newUnexpectedCharacter('\\', c);
+						throw in.mismatch('\\', c);
 					Define key = implicit[implicitIndex++];
-					String[] value = readValue(in);
+					String[] value = scanValues(in);
 					e.add(key, value);
 				}
 			}
 		} while (c != ']' && c != -1);
 		if (c == -1)
-			throw in.newUnexpectedCharacter(']', -1);
+			throw in.mismatch(']', -1);
 		return e;
 	}
 
 	/**
 	 * Either a quoted string or a until the next whitespace
 	 */
-	public static CharSequence readArg(DocumentReader in) throws IOException {
+	public static String scanValue(DocumentReader in) throws IOException {
 		int c = in.peek();
 		if (c != '"')
-			return in.until(Character::isWhitespace);
+			return in.until(Character::isWhitespace).toString();
 		in.gobble('"');
 		CharSequence arg = in.until(cp -> cp == '"');
 		in.gobble('"');
-		return arg;
+		return arg.toString();
 	}
 
 	/**
 	 * Reads a single value for a single attribute.
 	 * This value can be a list or a simple value.
 	 */
-	private static String[] readValue(DocumentReader in) throws IOException {
+	private static String[] scanValues(DocumentReader in) throws IOException {
 		int c = in.peek();
 		if (c == '\\') // next key, no value defined
 			return new String[0];
 		if (c != '[')
-			return new String[] { readArg(in).toString() };
+			return new String[] { scanValue(in) };
 		in.gobble('[');
 		List<String> args = new ArrayList<>();
 		c = in.peek();
 		while (c != -1 && c != ']') {
-			in.skip(Character::isWhitespace);
+			in.skipWhitespace();
 			c = in.peek();
 			if (c != -1 && c != ']') {
-				args.add(readArg(in).toString());
+				args.add(scanValue(in));
 				c = in.peek();
 			}
 		}
 		if (c == -1)
-			throw in.newUnexpectedCharacter(']', -1);
+			throw in.mismatch(']', -1);
 		in.gobble(']');
 		return args.toArray(String[]::new);
 	}

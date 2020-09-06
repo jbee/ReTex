@@ -28,9 +28,7 @@ public class Element implements Defined {
 	}
 
 	public final void add(Define key, String[] values) {
-		Attribute attr = new Attribute(key, values);
-		for (Nature n : key.natures())
-			add(n, attr);
+		add(key.nature(), new Attribute(key, values));
 	}
 
 	final void add(Nature key, Attribute attr) {
@@ -41,21 +39,26 @@ public class Element implements Defined {
 		return attributes.get(nature);
 	}
 
-	public <T> T[] values(Nature nature, Class<T> as, IntFunction<T[]> create, Function<String, T> map) {
+	public final String[] values(Nature nature) {
+		Attribute attr = get(nature);
+		return attr == null ? new String[0] : attr.values;
+	}
+
+	public final <T> T[] values(Nature nature, Class<T> as, IntFunction<T[]> create, Function<String, T> map) {
 		Attribute attr = get(nature);
 		if (attr == null)
 			return create.apply(0);
 		return attr.values(as, create, map);
 	}
 
-	public <T> T value(Nature nature, Class<T> as, IntFunction<T[]> create, Function<String, T> map) {
+	public final <T> T value(Nature nature, Class<T> as, IntFunction<T[]> create, Function<String, T> map) {
 		Attribute attr = get(nature);
 		if (attr == null || attr.values.length == 0)
 			return null;
 		return attr.values(as, create, map)[0];
 	}
 
-	private Define resolve(String alias) {
+	private final Define resolve(String alias) {
 		return context.definitionFor(alias);
 	}
 
@@ -72,12 +75,24 @@ public class Element implements Defined {
 		Methods used for any type of Element
 	 */
 
-	public Nature[] natures() {
-		return values(Nature.define, Nature.class, Nature[]::new, Nature::valueOf);
+	public final Nature nature() {
+		return value(Nature.define, Nature.class, Nature[]::new, Nature::valueOf);
 	}
 
-	public Define[] ref() {
+	public final Define[] ref() {
 		return valuesAsDefine(Nature.ref);
+	}
+
+	public final String[] control() {
+		return values(Nature.control);
+	}
+
+	/**
+	 * @return By convention the first argument of the {@link #control()} nature refers to the implementation class if such a reference is needed.
+	 */
+	public final String implementation() {
+		String[] control = control();
+		return control.length == 0 ? null : control[0];
 	}
 
 	/*

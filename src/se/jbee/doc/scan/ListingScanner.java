@@ -1,12 +1,9 @@
 package se.jbee.doc.scan;
 
 import se.jbee.doc.DocumentBuilder;
-import se.jbee.doc.DocumentReader;
-import se.jbee.doc.DocumentScanner;
 import se.jbee.doc.Element;
 
 import java.io.IOException;
-import java.io.Reader;
 
 /**
  * A flexible {@link DocumentScanner} that does basic code highlighting based

@@ -1,6 +1,5 @@
 package se.jbee.doc;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -51,7 +50,7 @@ public final class Attribute implements Defined {
 				throw new IllegalStateException("Already something else");
 			return (T[]) valuesCache;
 		}
-		Class<?> expectedType = definition.natures()[0].attrType;
+		Class<?> expectedType = definition.nature().attrType;
 		Class<?> actualType = as;
 		if (actualType != expectedType)
 			throw new IllegalArgumentException("Expected " + expectedType +" but tried "+ actualType);

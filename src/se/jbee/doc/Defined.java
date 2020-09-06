@@ -12,9 +12,6 @@ public interface Defined {
 	}
 
 	default boolean isOf(Nature nature) {
-		for (Nature n : definition().natures())
-			if (n == nature)
-				return true;
-		return false;
+		return nature == definition().nature();
 	}
 }
