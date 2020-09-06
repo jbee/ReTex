@@ -1,18 +1,20 @@
 package se.jbee.doc;
 
 import java.util.EnumMap;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 
 /**
  * Represents an element of the {@link Nature#define} that defines new elements and attributes.
  */
-public class Element {
+public class Element implements Defined {
 
 	/**
 	 * Like a "prototype" information for creating {@link Element} of a kind.
 	 * This itself is also just an {@link Element}.
 	 */
-	public final Define definition;
-	private final DocumentContext context;
+	private final Define definition;
+	protected final DocumentContext context;
 	private final EnumMap<Nature, Attribute> attributes = new EnumMap<>(Nature.class);
 
 	public Element(DocumentContext context, Define definition) {
@@ -20,13 +22,18 @@ public class Element {
 		this.context = context;
 	}
 
-	public final void set(Define key, String[] values) {
-		Attribute attr = new Attribute(context, key, values);
-		for (Nature n : key.get(Nature.define).asNatures())
-			set(n, attr);
+	@Override
+	public Define definition() {
+		return definition;
 	}
 
-	final void set(Nature key, Attribute attr) {
+	public final void add(Define key, String[] values) {
+		Attribute attr = new Attribute(key, values);
+		for (Nature n : key.natures())
+			add(n, attr);
+	}
+
+	final void add(Nature key, Attribute attr) {
 		attributes.put(key, attr);
 	}
 
@@ -34,23 +41,58 @@ public class Element {
 		return attributes.get(nature);
 	}
 
+	public <T> T[] values(Nature nature, Class<T> as, IntFunction<T[]> create, Function<String, T> map) {
+		Attribute attr = get(nature);
+		if (attr == null)
+			return create.apply(0);
+		return attr.values(as, create, map);
+	}
+
+	public <T> T value(Nature nature, Class<T> as, IntFunction<T[]> create, Function<String, T> map) {
+		Attribute attr = get(nature);
+		if (attr == null || attr.values.length == 0)
+			return null;
+		return attr.values(as, create, map)[0];
+	}
+
+	private Define resolve(String alias) {
+		return context.definitionFor(alias);
+	}
+
+	protected final Define[] valuesAsDefine(Nature nature) {
+		return values(nature, Define.class, Define[]::new, this::resolve);
+	}
+
+	protected final Define valueAsDefine(Nature nature) {
+		return value(nature, Define.class, Define[]::new, this::resolve);
+	}
+
+
 	/*
 		Methods used for any type of Element
 	 */
 
-	public final String name() {
-		return get(Nature.alias).values[0];
+	public Nature[] natures() {
+		return values(Nature.define, Nature.class, Nature[]::new, Nature::valueOf);
+	}
+
+	public Define[] ref() {
+		return valuesAsDefine(Nature.ref);
 	}
 
 	/*
 	  Methods used for text-Elements
 	 */
 
-	public boolean hasNature(Nature nature) {
-		for (Nature n : get(Nature.define).asNatures())
-			if (n == nature)
-				return true;
-		return false;
+	/**
+	 * @return true if the element has a defining nature which means a new {@link Element} or {@link Attribute} is defined.
+	 */
+	public boolean isDefining() {
+		return isOf(Nature.define);
+	}
+
+	public boolean isOpeningNamespace() {
+		return isOf(Nature.ns);
 	}
 
 	/*
@@ -60,7 +102,7 @@ public class Element {
 	@Override
 	public final String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append('\\').append(definition);
+		str.append('\\').append(definition.name());
 		str.append('[');
 		for (Nature n : Nature.values()) {
 			Attribute attr = get(n);

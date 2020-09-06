@@ -6,7 +6,7 @@ import java.io.Reader;
 import java.text.ParseException;
 import java.util.function.IntPredicate;
 
-public final class CharReader {
+public final class CharReader implements DocumentReader {
 
 	private final BufferedReader in;
 	private int line = 1;
@@ -17,83 +17,36 @@ public final class CharReader {
 		this.in = in instanceof BufferedReader ? (BufferedReader) in : new BufferedReader(in);
 	}
 
-	public int getFilePosition() {
-		return position;
+	@Override
+	public int read() throws IOException {
+		int cp = in.read();
+		updatePosition(cp);
+		return cp;
 	}
 
-	public int getLineOffset() {
-		return offset;
-	}
-
-	public int getLineNr() {
-		return line;
-	}
-
+	@Override
 	public int peek() throws IOException {
 		in.mark(1);
-		int c = in.read();
+		int cp = in.read();
 		in.reset();
-		return c;
+		return cp;
 	}
 
-	public int read() throws IOException {
-		int c = in.read();
-		updatePosition(c);
-		return c;
+	@Override
+	public int peek(IntPredicate test) throws IOException {
+		int c = 0;
+		in.mark(256);
+		int cp = in.read();
+		while (cp != -1 && test.test(cp)) {
+			c++;
+			cp = in.read();
+		}
+		return cp == -1 ? (-c -1) : c;
 	}
 
-	/**
-	 * Either a quoted string or a until the next whitespace
-	 */
-	public CharSequence readArg() throws IOException {
-		int c = peek();
-		if (c != '"')
-			return until(Character::isWhitespace);
-		gobble('"');
-		CharSequence arg = until(cp -> cp == '"');
-		gobble('"');
-		return arg;
-	}
-
-	public CharSequence until(IntPredicate test) throws IOException {
-		StringBuilder str = new StringBuilder();
-		int c;
-		boolean isEnd = false;
-		do {
-			in.mark(1);
-			c = in.read();
-			isEnd = c == -1 || test.test(c);
-			if (!isEnd) {
-				updatePosition(c);
-				str.appendCodePoint(c);
-			}
-		} while (!isEnd);
-		in.reset();
-		if (c == -1)
-			throw new UnexpectedCharacter('?', -1, this);
-		return str;
-	}
-
-	public void skip(IntPredicate test) throws IOException {
-		int c;
-		boolean skip = true;
-		do {
-			in.mark(1);
-			c = in.read();
-			skip = c != -1 && test.test(c);
-			if (skip)
-				updatePosition(c);
-		} while(skip);
-		in.reset();
-		if (c == -1)
-			throw new UnexpectedCharacter('?', -1, this);
-	}
-
-	public void gobble(int expected) throws IOException {
-		int c = in.read();
-		if (c != expected)
-			throw new UnexpectedCharacter(expected, c, this);
-		updatePosition(c);
+	@Override
+	public UnexpectedCharacter newUnexpectedCharacter(int expected, int actual) {
+		return new UnexpectedCharacter(expected, actual, new Position(line, offset, position));
 	}
 
 	private void updatePosition(int c) throws IOException {

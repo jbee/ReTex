@@ -379,6 +379,9 @@ TODO How does one define in `^` when namespace is wrapping around?
 Define `define`'s `in` as `&ns` instead of `^`? making sure they always occur in a namespace? 
 or both `\in [^ $ns]`, meaning in top level or in any element that is of nature `ns`
 
+When a `\define` has an attribute of nature `ns` the definition is made in the
+referenced namespace independent of in what namespace the definition was made.
+
 ## Imports
 Idea: could be elements before the use of a `ns[foo]` which establish where
 foo might be found. Their nature is unclear but usage would be like:
@@ -405,6 +408,7 @@ Styles are per target system and target element
         \define[style html \implicit selector]
         \define[style tag \in html]
         \define[style css \in html]
+        
         \html[[chapter heading] \tag h1 \css "font-size: 14pt;"]
 
 First the `selector` reference `ref` is defined that points to `text` elements.
@@ -416,3 +420,61 @@ The `selector` for the reference is not understood as a set of possible referenc
 but as a hierarchy, so in this case the target are all `heading` elements directly below a `chapter`.
 The style details of this example would be linked to the `heading` element but should only be
 applied by html renderers if the `heading` in an actual document is directly nested in a `chapter` element.
+
+
+# Scanners
+Are bound to an implementation using an element with nature `scanner`.
+
+        \system-scanner[\class "se.jbee.doc.scanner.SystemScanner"]
+
+The used element(s) and attribute(s) in this example would be defined as:
+
+        \define[scanner scanner]
+        \define[? class]
+        \scanner*[system-scanner]
+        
+The `?` is used because the nature of the `\class` attribute is unclear.
+No suitable nature does yet exist. Maybe a nature `code` should be added
+which should be used whenever references to code are made.       
+
+Scanners are used by adding an attribute of nature `scanner` to an element.
+The body of the element is scanned by the scanner pointed out.
+
+        \scanner*[markdown-scanner \class "..."]
+        \define[scanner scan ...]
+        \define[text markdown \scan markdown-scanner]
+
+This defines a `text` element `markdown` which uses the `markdown-scanner` 
+implementation. 
+When the implementation is bound further arguments can be passed to the constructor
+or by simply defining further attributes in the `\markdown-scanner` element.
+Each scanner implementation is checked for a constructor which accepts only a `Element` parameter first.
+If it does not exist the no argument constructor is invoked.
+
+When elements use another scanner they can support detecting a line with only `}`
+as end of the body. For example:
+
+        \markdown{
+        # This now is markdown
+        A paragraph here.
+        
+        Another there. 
+        Last line.
+        }
+
+Alternatively the body is marked with a start and end token which occurs at least
+4 times in a direct sequence on the first line and similarly on the last line 
+and where both start and end do not have other tokens. Both start and end line
+are not interpreted and cut from output. For example:
+
+        \markdown
+        -----------------------
+        # This now is markdown
+        A paragraph here.
+        
+        Another there. 
+        Last line.        
+        -----------------------
+
+The thrird alternative is switching scanner in connection with changing file.
+In that case the boundaries are clear and no mark is required.

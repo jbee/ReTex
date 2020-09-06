@@ -47,7 +47,7 @@ public enum Nature {
 	/**
 	 * (refers to "parent" element or attribute definition(s) which are the basis of the defined element or attribute, it x _is a type of_ y; when used in an element that is not of nature `define` it makes the element of the referred sort)
 	 */
-	is_a(Element.class),
+	is_a(Define.class),
 	/**
 	 * (adds one or more alias names for the defined element or attribute; for example to create an abbr. name to use in inline formatting)
 	 */
@@ -55,7 +55,7 @@ public enum Nature {
 	/**
 	 * (gives one or more references to element or attributes, the assumed type(s) are given through the `accept` nature. For example when `accept` is `define` the reference is to `alias` name(s) of a `define` element)
 	 */
-	ref(Element.class),
+	ref(Define.class),
 
 	// Validity:
 	/**
@@ -75,23 +75,23 @@ public enum Nature {
 	/**
 	 * (what are direct parents to the defined element/attribute)
 	 */
-	in(Element.class),
+	in(Define.class),
 	/**
 	 * (what are known direct children to the defined element)
 	 */
-	around(Element.class),
+	around(Define.class),
 	/**
 	 * (what is assumed in `\[...]` if no keys are given for the defined element/attribute)
 	 */
-	implicit(Element.class),
+	implicit(Define.class),
 	/**
 	 * (what is assumed for line with no type around after the usage of the defined element)
 	 */
-	plain(Element.class),
+	plain(Define.class),
 	/**
 	 * (what is assumed for `\[...]` => `\x[...]` in text following the defined element)
 	 */
-	inline(Element.class),
+	inline(Define.class),
 
 	// Interpretation:
 	/**
@@ -101,9 +101,14 @@ public enum Nature {
 	 * Applies for the body of the element that got the attribute,
 	 * can occur in definition or usage of an element to just apply to the single occurrence.
 	 *
-	 * Possible values: 'default', 'verbatim'
+	 * Possible values: 'system', 'verbatim'
 	 */
 	scanner(String.class),
+
+	/**
+	 * General
+	 */
+	code(String.class),
 
 	// Modularisation:
 	/**

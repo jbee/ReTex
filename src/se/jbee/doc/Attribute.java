@@ -1,14 +1,27 @@
 package se.jbee.doc;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 
-public final class Attribute {
+public final class Attribute implements Defined {
 
-	public final Define definition;
+	//TODO constants: basically an attribute that is defined once and reused including its value
+
+	private final Define definition;
 	final String[] values;
-	private final DocumentContext context;
-	private Nature[] valuesAsNature;
-	private Define[] valuesAsDefinition;
+	private Object[] valuesCache;
+
+	public Attribute(Define definition, String[] values) {
+		this.definition = definition;
+		this.values = values;
+	}
+
+	@Override
+	public Define definition() {
+		return definition;
+	}
 
 	@Override
 	public String toString() {
@@ -32,59 +45,18 @@ public final class Attribute {
 		}
 	}
 
-	Attribute(DocumentContext context, Define definition, String[] values) {
-		this.definition = definition;
-		this.values = values;
-		this.context = context;
-	}
-
-	public Nature[] asNatures() {
-		if (valuesAsNature == null)
-			valuesAsNature = Arrays.stream(values).map(Nature::valueOf).toArray(Nature[]::new);
-		return valuesAsNature;
-	}
-
-	public Define[] asDefinitions() {
-		if (valuesAsDefinition == null)
-			valuesAsDefinition = Arrays.stream(values).map(context::definitionFor).toArray(Define[]::new);
-		return valuesAsDefinition;
-	}
-
-	public static boolean isValue(Attribute attr, Element other) {
-		for (Element e : attr.asDefinitions())
-			if (e == other)
-				return true;
-		return false;
-	}
-
-	public static boolean includes(Attribute attr, Nature nature) {
-		return hasPattern(attr,"&"+nature.name());
-	}
-
-	public static boolean includes(Attribute attr, Element element) {
-		for (Nature n : element.get(Nature.define).asNatures())
-			if (includes(attr, n))
-				return true;
-		for (String alias : element.get(Nature.alias).values)
-			if (hasPattern(attr, alias))
-				return true;
-		return includesIsA(attr, element);
-	}
-
-	private static boolean includesIsA(Attribute attr, Element element) {
-		Attribute is_a = element.get(Nature.is_a);
-		while (is_a != null) {
-			for (Element e : is_a.asDefinitions())
-				if (hasPattern(attr,"*" + e.get(Nature.alias)) || includesIsA(attr, e))
-					return true;
+	public <T> T[] values(Class<T> as, IntFunction<T[]> create, Function<String, T> map) {
+		if (valuesCache != null) {
+			if (valuesCache.getClass().getComponentType() != as)
+				throw new IllegalStateException("Already something else");
+			return (T[]) valuesCache;
 		}
-		return false;
+		Class<?> expectedType = definition.natures()[0].attrType;
+		Class<?> actualType = as;
+		if (actualType != expectedType)
+			throw new IllegalArgumentException("Expected " + expectedType +" but tried "+ actualType);
+		valuesCache = Arrays.stream(values).map(map).toArray(create);
+		return (T[]) valuesCache;
 	}
 
-	private static boolean hasPattern(Attribute attr, String pattern) {
-		for (String p : attr.values)
-			if (p.equals(pattern))
-				return true;
-		return false;
-	}
 }
