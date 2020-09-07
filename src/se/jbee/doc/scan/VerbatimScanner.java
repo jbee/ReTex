@@ -10,7 +10,7 @@ import java.io.IOException;
 public class VerbatimScanner implements DocumentScanner {
 
 	@Override
-	public void scan(DocumentReader in, DocumentBuilder builder) throws IOException {
+	public void scan(DocumentReader in, DocumentBuilder builder, boolean headless) throws IOException {
 
 	}
 }

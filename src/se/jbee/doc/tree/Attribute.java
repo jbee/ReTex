@@ -1,4 +1,6 @@
-package se.jbee.doc;
+package se.jbee.doc.tree;
+
+import se.jbee.doc.Nature;
 
 import java.util.Arrays;
 import java.util.function.Function;
@@ -9,10 +11,15 @@ public final class Attribute implements Defined {
 	//TODO constants: basically an attribute that is defined once and reused including its value
 
 	private final Define definition;
-	final String[] values;
+	public final String[] values;
 	private Object[] valuesCache;
 
-	public Attribute(Define definition, String[] values) {
+	public Attribute(Define definition, Nature value) {
+		this(definition, value.name());
+	}
+
+	@SafeVarargs
+	public Attribute(Define definition, String... values) {
 		this.definition = definition;
 		this.values = values;
 	}
@@ -34,8 +41,7 @@ public final class Attribute implements Defined {
 		if (values.length != 1) {
 			str.append('[');
 			for (int i = 0; i < values.length; i++) {
-				if (i > 0)
-					str.append(' ');
+				if (i > 0) str.append(' ');
 				str.append(values[i]);
 			}
 			str.append(']');
@@ -53,7 +59,7 @@ public final class Attribute implements Defined {
 		Class<?> expectedType = definition.nature().attrType;
 		Class<?> actualType = as;
 		if (actualType != expectedType)
-			throw new IllegalArgumentException("Expected " + expectedType +" but tried "+ actualType);
+			throw new IllegalArgumentException("Expected " + expectedType + " but tried " + actualType);
 		valuesCache = Arrays.stream(values).map(map).toArray(create);
 		return (T[]) valuesCache;
 	}

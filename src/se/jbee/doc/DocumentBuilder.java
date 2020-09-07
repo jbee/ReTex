@@ -1,26 +1,17 @@
 package se.jbee.doc;
 
+import se.jbee.doc.tree.Element;
+
 public interface DocumentBuilder {
 
-	DocumentMetadata meta();
+	DocumentContext context();
 
 	/**
-	 * Called for usual <code>\element</code> elements
 	 * @param header an Element with no body yet
+	 * @param body   the scanner to use for the body if the header is not
+	 *               indicating a switch to another scanner implementation
 	 */
-	void begin(Element header);
-
-	/**
-	 * Called for <code>\define!</code> elements
-	 * @param header an Element with no body yet
-	 */
-	void beginRedefine(Element header);
-
-	/**
-	 * Called for <code>prototype*</code> born elements
-	 * @param header an Element with no body yet
-	 */
-	void beginDerive(Element header);
+	void add(Element header, Runnable body);
 
 	Element createPlain();
 }

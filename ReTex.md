@@ -448,8 +448,12 @@ This defines a `text` element `markdown` which uses the `markdown-scanner`
 implementation. 
 When the implementation is bound further arguments can be passed to the constructor
 or by simply defining further attributes in the `\markdown-scanner` element.
-Each scanner implementation is checked for a constructor which accepts only a `Element` parameter first.
+Each scanner implementation is checked for a constructor which accepts 
+a `Define` (full scanner definition) and a `Element` (full scanner usage) parameter.
 If it does not exist the no argument constructor is invoked.
+Scanner implementations can use both elements to customise their processing.
+In particular they might use the `style` attributes to customise the details 
+of how they output the scanned source in in the document model.
 
 When elements use another scanner they can support detecting a line with only `}`
 as end of the body. For example:

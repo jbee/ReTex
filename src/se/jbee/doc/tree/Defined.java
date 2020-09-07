@@ -1,9 +1,13 @@
-package se.jbee.doc;
+package se.jbee.doc.tree;
 
+import se.jbee.doc.Nature;
+
+@FunctionalInterface
 public interface Defined {
 
 	/**
-	 * @return The <code>\define[...]</code> object that defined the composition of this {@link Element} or {@link Attribute}.
+	 * @return The <code>\define[...]</code> object that defined the composition
+	 * of this {@link Element} or {@link Attribute}.
 	 */
 	Define definition();
 

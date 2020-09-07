@@ -3,6 +3,7 @@ package se.jbee.doc.scan;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.util.function.IntPredicate;
 
 public final class BufferedDocumentReader implements DocumentReader {
@@ -17,30 +18,42 @@ public final class BufferedDocumentReader implements DocumentReader {
 	}
 
 	@Override
-	public int read() throws IOException {
-		int cp = in.read();
-		updatePosition(cp);
-		return cp;
-	}
-
-	@Override
-	public int peek() throws IOException {
-		in.mark(1);
-		int cp = in.read();
-		in.reset();
-		return cp;
-	}
-
-	@Override
-	public int peek(IntPredicate cpTest) throws IOException {
-		int c = 0;
-		in.mark(256);
-		int cp = in.read();
-		while (cp != -1 && cpTest.test(cp)) {
-			c++;
-			cp = in.read();
+	public int read() {
+		try {
+			int cp = in.read();
+			updatePosition(cp);
+			return cp;
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
 		}
-		return cp == -1 ? (-c -1) : c;
+	}
+
+	@Override
+	public int peek() {
+		try {
+			in.mark(1);
+			int cp = in.read();
+			in.reset();
+			return cp;
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
+
+	@Override
+	public int peek(IntPredicate cpTest) {
+		try {
+			int c = 0;
+			in.mark(256);
+			int cp = in.read();
+			while (cp != -1 && cpTest.test(cp)) {
+				c++;
+				cp = in.read();
+			}
+			return cp == -1 ? (-c - 1) : c;
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
 	}
 
 	@Override
@@ -56,8 +69,7 @@ public final class BufferedDocumentReader implements DocumentReader {
 		}
 		column = 1;
 		line++;
-		if (c == '\n')
-			return; // we are sure we are done
+		if (c == '\n') return; // we are sure we are done
 		// c must be \r, a \n might follow
 		c = peek();
 		if (c == '\n') {

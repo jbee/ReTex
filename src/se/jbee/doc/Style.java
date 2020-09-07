@@ -1,5 +1,8 @@
 package se.jbee.doc;
 
+import se.jbee.doc.tree.Define;
+import se.jbee.doc.tree.Element;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +23,7 @@ public final class Style {
 		Define[] ref = style.ref();
 		if (ref.length == 0)
 			throw new IllegalArgumentException("A style definition needs a reference to the target declaration type");
-		if (!ref[ref.length-1].name().equals(target.name()))
+		if (!ref[ref.length - 1].name().equals(target.name()))
 			throw new IllegalArgumentException("Last reference element must be the target element of this style collection.");
 		String system = style.definition().name();
 		styles.computeIfAbsent(system, key -> new ArrayList<>()).add(style);
