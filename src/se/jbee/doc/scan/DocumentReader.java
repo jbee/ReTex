@@ -70,4 +70,18 @@ public interface DocumentReader {
 		throw mismatch(-2, -1);
 	}
 
+	default int peek(int ahead) {
+		if (ahead == 1)
+			return peek();
+		int[] left = { ahead };
+		peek(cp -> {
+			left[0] -= 1;
+			boolean peekMore = left[0] > 0;
+			if (!peekMore)
+				left[0] = cp;
+			return peekMore;
+		});
+		return left[0];
+	}
+
 }

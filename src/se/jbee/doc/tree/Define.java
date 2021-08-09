@@ -9,59 +9,78 @@ import java.util.regex.Pattern;
 /**
  * An {@link Element} created for elements of {@link Nature#define}.
  */
-public final class Define extends Element {
+public class Define extends Element {
 
+	//TODO maybe add a nature pattern that is used to validate values?
 	static final Pattern ALIAS = Pattern.compile("[a-z](:?[-a-z]*[a-z])?");
 	static final Pattern NAME = Pattern.compile("[-a-zA-Z0-9_]+");
 
-	/**
-	 * Bootstrapping of the 3 essential definitions required to make further definitions possible.
-	 */
-	static {
-
-	}
-
-	private static Define bootstrapContext(String alias) {
-		throw new UnsupportedOperationException("None of the bootstrap definitions should ever be resolved as a " + Define.class.getSimpleName());
-	}
-
-	public static Namespace bootstrap(DocumentContext context) {
-		Define define = new Define(context, null);
+	public static Namespace[] bootstrap(DocumentContext context) {
+		// 1: \define[\nature define \is define]
+		Define define = new Define(context, null); // define is defined by and as itself ;)
+		// 2: \define[\nature define \is nature]
 		Define nature = new Define(define);
+		// 3: \define[\nature alias \is is]
 		Define is = new Define(define);
+		// 4: \define[\nature ns \is system]
 		Define system = new Define(define);
+		// 5: \define[\nature ns \is "_ns_"]
+		Define ns = new Define(define);
 		define.add(Nature.define, new Attribute(nature, Nature.define));
-		define.add(Nature.alias, new Attribute(is, "alias"));
+		define.add(Nature.alias, new Attribute(is, "define"));
 		nature.add(Nature.define, new Attribute(nature, Nature.define));
 		nature.add(Nature.alias, new Attribute(is, "nature"));
 		is.add(Nature.define, new Attribute(nature, Nature.alias));
 		is.add(Nature.alias, new Attribute(is, "is"));
 		system.add(Nature.define, new Attribute(nature, Nature.ns));
 		system.add(Nature.alias, new Attribute(is, "system"));
-		return new Namespace(system)
-				.add(define)
-				.add(nature)
-				.add(is);
+		ns.add(Nature.define, new Attribute(nature, Nature.ns));
+		ns.add(Nature.alias, new Attribute(is, DocumentContext.NS_NS_ALIAS));
+		// \system{
+		//   \define (1-3)
+		// }
+		// \_ns_{
+		//   \define (4-5)
+		// }
+		//NOTE: it is the use of an element defined with nature "ns" that creates the element of type Namespace
+		return new Namespace[] {
+				new Namespace(system).add(define).add(nature).add(is),
+				new Namespace(ns).add(ns).add(system)
+		};
 	}
 
 	public final Style styles;
 	private Map<String, Define> partOfDefinitions = new HashMap<>();
+	private boolean locked;
 
-	public Define(Define definition) {
-		this(definition.context, definition);
+	/**
+	 * @param definedAs refers to the element used to define the created {@link Define}
+	 */
+	public Define(Define definedAs) {
+		this(definedAs.context, definedAs);
 	}
-	private Define(DocumentContext context, Define definition) {
-		super(context, definition, Nature.define);
-		this.styles = new Style(definition);
+
+	private Define(DocumentContext context, Define definedAs) {
+		super(context, definedAs, Nature.define);
+		this.styles = new Style(this);
+	}
+
+	@Override
+	public Define definedAs() {
+		return this; // any Define is defined as itself
+	}
+
+	/**
+	 * @return the definition of the element that was used to define this one
+	 */
+	public Define definedBy() {
+		return super.definedAs();
 	}
 
 	public Element newElement() {
 		if (isOf(Nature.define)) return new Define(this);
 		if (isOf(Nature.text)) return new Text(this);
-		if (isOf(Nature.ns)) {
-			Element ns = context.getDefinition("system:" + name() );
-			return ns != null ? (Namespace) ns : new Namespace(this);
-		}
+		if (isOf(Nature.ns)) new Namespace(this);
 		return new Element(this);
 	}
 
@@ -74,7 +93,8 @@ public final class Define extends Element {
 	}
 
 	public String[] alias() {
-		return get(Nature.alias).values;
+		Attribute alias = get(Nature.alias);
+		return alias == null ? null : alias.values;
 	}
 
 	public Define[] isa() {
@@ -101,27 +121,42 @@ public final class Define extends Element {
 		return valueAsDefine(Nature.inline);
 	}
 
-	public Category[] accept() {
+	public Qualifier[] accept() {
 		return valuesAsCategory(Nature.accept);
 	}
 
-	public Category[] must() {
+	public Qualifier[] must() {
 		return valuesAsCategory(Nature.must);
 	}
 
-	public Category[] may() {
+	public Qualifier[] may() {
 		return valuesAsCategory(Nature.may);
 	}
 
-	private Category[] valuesAsCategory(Nature nature) {
-		return values(nature, Category.class, Category[]::new, this::newCategory);
+	public boolean isLocked() {
+		return locked;
 	}
 
-	private Category newCategory(String pattern) {
+	void lock() {
+		locked = true;
+	}
+
+	@Override
+	protected void references(Define key) {
+		String name = name();
+		if (name != null) // during bootstrapping name might not yet be defined
+			key.partOfDefinitions.put(name, this);
+	}
+
+	private Qualifier[] valuesAsCategory(Nature nature) {
+		return values(nature, Qualifier.class, Qualifier[]::new, this::newCategory);
+	}
+
+	private Qualifier newCategory(String pattern) {
 		if (pattern.charAt(0) == '&')
-			return new Category(Nature.valueOf(pattern.substring(1)));
+			return new Qualifier(Nature.valueOf(pattern.substring(1)));
 		boolean isa = pattern.charAt(0) == '*';
 		if (isa) pattern = pattern.substring(1);
-		return new Category(context.getDefinition(pattern), isa);
+		return new Qualifier(context.definition(pattern), isa);
 	}
 }

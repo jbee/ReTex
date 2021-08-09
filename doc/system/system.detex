@@ -1,0 +1,28 @@
+\system{
+
+    # Phase 1: Create all attributes needed for full \define
+    \define[\nature operation \is op]
+    \define[\nature implicit \is implicit]
+    \define![\nature define \is define \implicit [nature is]]
+    \define[in in]
+    \define[must must]
+    \define[may may]
+
+    # Phase 2: Redefine \define with full details
+    \define![define define
+        \implicit [nature is]
+        \in [^ &ns]
+        \must [&nature &alias]
+        \may [&ns &scanner &plain &inline &in &around &accept &must &may]
+    ]
+
+    # Phase 3: Define attributes used with \define
+    \define[around around \in &define]
+    \define[plain plain \in &define]
+    \define[inline inline \in &define]
+    \define[ns ns \in [^ &define]]
+    \define[scanner scan \in &define]
+    \define[accept accept \in &define]
+
+}
+

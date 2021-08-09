@@ -4,10 +4,7 @@ import se.jbee.doc.tree.Define;
 import se.jbee.doc.tree.Element;
 import se.jbee.doc.tree.Namespace;
 
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 public class DocumentBuilderImpl implements DocumentBuilder, DocumentContext {
 
@@ -23,13 +20,16 @@ public class DocumentBuilderImpl implements DocumentBuilder, DocumentContext {
 	 */
 	private final Deque<Element> hierarchy = new LinkedList<>();
 
-	private final Deque<String> openedNsStack = new LinkedList<>();
-	private String[] visibleNsSeq = {"system"};
+	private final Deque<Namespace> targetNsStack = new LinkedList<>();
+	private final List<Namespace> importedNsSequence = new ArrayList<>();
 
 	public DocumentBuilderImpl(Document doc) {
 		this.doc = doc;
 		if (doc.ns("system") == null) {
-			doc.add(Define.bootstrap(this));
+			for (Namespace ns : Define.bootstrap(this)) {
+				doc.add(ns);
+				importedNsSequence.add(ns);
+			}
 		}
 	}
 
@@ -39,74 +39,102 @@ public class DocumentBuilderImpl implements DocumentBuilder, DocumentContext {
 	}
 
 	@Override
-	public Define getDefinition(String alias) {
-		if (alias.indexOf(':') < 0) {
-			for (String ns : openedNsStack) {
-				Define res = doc.ns(ns).getDefinition(alias);
+	public Define definition(String alias) {
+		int nsIndex = alias.indexOf(':');
+		if (nsIndex < 0) {
+			for (Namespace ns : targetNsStack) {
+				Define res = ns.definition(alias);
 				if (res != null) return res;
 			}
-			for (String ns : visibleNsSeq) {
-				Define res = doc.ns(ns).getDefinition(alias);
+			for (Namespace ns : importedNsSequence) {
+				Define res = ns.definition(alias);
 				if (res != null) return res;
 			}
 			throw notDefined(alias);
 		}
-		String ns = alias.substring(0, alias.indexOf(':'));
-		alias = alias.substring(alias.indexOf(':' + 1));
-		Define res = doc.ns(ns).getDefinition(alias);
+		String ns = alias.substring(0, nsIndex);
+		alias = alias.substring(nsIndex + 1);
+		Define res = doc.ns(ns).definition(alias);
 		if (res != null) return res;
 		throw notDefined(alias);
 	}
 
 	private NoSuchElementException notDefined(String alias) {
-		return new NoSuchElementException("Not defined in visible namespaces " + Arrays.toString(visibleNsSeq) + " : " + alias);
-	}
-
-	private void openNamespace(String ns) {
-		openedNsStack.addFirst(ns);
-	}
-
-	private void closeNamsespace() {
-		openedNsStack.removeFirst();
+		return new NoSuchElementException("Not defined in imported namespaces " + importedNsSequence + " : " + alias);
 	}
 
 	@Override
-	public void add(Element header, Runnable body) {
-		add(header);
+	public void addElement(Element header) {
+		addAuto(header);
 	}
 
-	private void add(Element header) {
+	@Override
+	public void addText(CharSequence text) {
+
+	}
+
+	@Override
+	public void openElementBody() {
+		//TODO this is where a namespace is eventually created when a NS element body is opened and no such space exists yet
+	}
+
+	@Override
+	public void closeElementBody() {
+
+	}
+
+	@Override
+	public void openTextBody() {
+
+	}
+
+	@Override
+	public void closeTextBody() {
+
+	}
+
+	private void addAuto(Element header) {
 		if (header.isOf(Nature.ns)) {
 			if (header.has(Nature.ref)) {
 				// opens the referenced namespace in read-only mode
+				for (String ns : header.get(Nature.ref).values) {
 
+				}
 			} else { // read-write access to the namespace
-				String ns = header.name();
-				//TODO check namespace exist (created when defined)
+				inNsReadWrite(header);
+				return;
 			}
 		}
 		if (header.isOf(Nature.define)) {
-
+			//TODO define in NS
 		} else {
 			//TODO add to doc body
 		}
 	}
 
-	private void redefine(Element header) {
+	private void inNsReadWrite(Element header) {
+		Namespace ns = doc.ns(header.name());
+		if (ns == null)
+			throw new IllegalArgumentException("Namespace not defined: "+ header.name());
+		targetNsStack.addFirst(ns);
+		//TODO
+		targetNsStack.removeFirst();
+		return;
+	}
+
+	private void addRedefine(Element header) {
 		if (!header.isOf(Nature.define))
 			throw new IllegalArgumentException("Redefine must be done with element of nature define but got: " + header);
-		Define existing = getDefinition(header.name());
+		Define existing = definition(header.name());
 		if (existing == null)
 			throw new IllegalStateException("Redefine used for undefined element: " + header);
+		if (existing.isLocked())
+			throw new IllegalStateException("Existing element cannot be redefined because it has already been used for content.");
 
 	}
 
-	private void derive(Element header) {
+	private void addDerive(Element header) {
 
 	}
 
-	@Override
-	public Element createPlain() {
-		return null;
-	}
 }

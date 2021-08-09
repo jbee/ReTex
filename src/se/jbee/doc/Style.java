@@ -25,7 +25,7 @@ public final class Style {
 			throw new IllegalArgumentException("A style definition needs a reference to the target declaration type");
 		if (!ref[ref.length - 1].name().equals(target.name()))
 			throw new IllegalArgumentException("Last reference element must be the target element of this style collection.");
-		String system = style.definition().name();
+		String system = style.definedAs().name();
 		styles.computeIfAbsent(system, key -> new ArrayList<>()).add(style);
 	}
 }

@@ -42,6 +42,18 @@ public enum Nature {
 	//TODO a nature to point out the language of the text content ?
 	//TODO also a nature for reader specific information type so that data can be stored using the system? for example put the java type - the correct interpretation is only known by the software that created the file but still a neat feature
 
+	// Counters:
+	/**
+	 * (links a text element to a named counter; on usage of the text element the
+	 * counter is incremented)
+	 */
+	counter(String.class),
+	/**
+	 * (links a text element to a named counter; on usage of the text element the
+	 * counter is reset)
+	 */
+	reset(String.class),
+
 	// Presentation:
 	/**
 	 * (vaguely: a hint for the rendering where a content is presented, e.g.
@@ -85,7 +97,9 @@ public enum Nature {
 	alias(String.class),
 	/**
 	 * (gives one or more references to element or attributes, the assumed type(s)
-	 * are given through the `accept` nature. For example when `accept` is
+	 * are given through the `accept` nature as defined for the attribute of nature `ref`.
+	 *
+	 * For example when `accept` is
 	 * `define` the reference is to `alias` name(s) of a `define` element)
 	 */
 	ref(Define.class),
@@ -97,17 +111,17 @@ public enum Nature {
 	 * this restricts possible child elements or attributes depending on the
 	 * natures of the items in the set)
 	 */
-	accept(Category.class),
+	accept(Qualifier.class),
 	/**
 	 * (what are attributes that must be given in `[...]` to the defined element
 	 * or attribute)
 	 */
-	must(Category.class),
+	must(Qualifier.class),
 	/**
 	 * (what are attributes that may be given in `[...]` to the defined element or
 	 * attribute)
 	 */
-	may(Category.class),
+	may(Qualifier.class),
 
 	//Inference:
 	/**
@@ -158,17 +172,7 @@ public enum Nature {
 	 */
 	ns(null),
 
-	// Counters:
-	/**
-	 * (links a text element to a named counter; on usage of the text element the
-	 * counter is incremented)
-	 */
-	counter(String.class),
-	/**
-	 * (links a text element to a named counter; on usage of the text element the
-	 * counter is reset)
-	 */
-	reset(String.class),
+
 
 	;
 

@@ -8,14 +8,19 @@ public interface Defined {
 	/**
 	 * @return The <code>\define[...]</code> object that defined the composition
 	 * of this {@link Element} or {@link Attribute}.
+	 *
+	 * If this is a {@link Define} element itself this returns this itself as
+	 * each definition declares the basis on which other {@link Element}s are
+	 * defined.
 	 */
-	Define definition();
+	Define definedAs();
 
 	default String name() {
-		return definition().alias()[0];
+		String[] alias = definedAs().alias();
+		return alias == null ? null : alias[0];
 	}
 
 	default boolean isOf(Nature nature) {
-		return nature == definition().nature();
+		return nature == definedAs().nature();
 	}
 }

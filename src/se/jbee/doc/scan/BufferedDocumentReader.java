@@ -50,6 +50,7 @@ public final class BufferedDocumentReader implements DocumentReader {
 				c++;
 				cp = in.read();
 			}
+			in.reset();
 			return cp == -1 ? (-c - 1) : c;
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);

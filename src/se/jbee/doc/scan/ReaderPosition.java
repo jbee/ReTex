@@ -24,6 +24,6 @@ public final class ReaderPosition {
 
 	@Override
 	public String toString() {
-		return line + ":" + column + " [" + character + "]";
+		return line + ":" + column + " [#" + character + "]";
 	}
 }

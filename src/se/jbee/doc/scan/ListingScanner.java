@@ -24,7 +24,7 @@ public class ListingScanner implements DocumentScanner {
 	}
 
 	@Override
-	public void scan(DocumentReader in, DocumentBuilder builder, boolean headless) throws IOException {
+	public void scan(DocumentReader src, DocumentBuilder doc, boolean headless) {
 
 	}
 }

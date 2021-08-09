@@ -6,8 +6,8 @@ import se.jbee.doc.Nature;
 
 public final class Text extends Element {
 
-	public Text(Define definition) {
-		super(definition, Nature.text);
+	public Text(Define definedAs) {
+		super(definedAs, Nature.text);
 	}
 
 	public Component component() {
